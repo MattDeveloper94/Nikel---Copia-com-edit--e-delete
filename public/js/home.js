@@ -3,7 +3,6 @@ const myModal = new bootstrap.Modal("#transaction-modal");
 // var global
 let logged = sessionStorage.getItem("logged");
 const session = localStorage.getItem("session");
-let editing = 0;
 
 //função
 function checkLogged() {
@@ -133,11 +132,11 @@ function selectItemListTransactions() {
 }
 
 function editingForm(object) {
+    myModal.show();
     document.getElementById("value-input").value = object.value;
     document.getElementById("description-input").value = object.description;
     document.getElementById("date-input").value = object.date;
     document.querySelector(`input[name="type-input"][value="${object.type}"]`).checked = true;
-    myModal.show();
 }
 
 function objectOld(objectOld) {
@@ -152,140 +151,58 @@ function updateTransactions() {
 }
 
 function editTransactions() {
-    const listTransactions = data.transactions;
     let inputTransaction = data.transactions.filter((item) => item.type === "1");
     let outTransaction = data.transactions.filter((item) => item.type === "2");
 
-    if (selectIndex < listTransactions.length) {
-        if (inputTransaction.length < 6) {
-            if (selectIndex <= inputTransaction.length - 1) {
-                editing = 1;
-                for (let i = 0; i < 5; i++) {
-                    if (i === selectIndex) {
-                        editingForm(inputTransaction[i]);
-                        objectOld(inputTransaction[i]);
-                        break;
-                    }
-                }
+    if (selectIndex < 5) {
+        editing = 1;
+        if (inputTransaction.length > 0) {
+            if (inputTransaction.length >= (selectIndex + 1)) {
+                editingForm(inputTransaction[selectIndex]);
+                objectOld(inputTransaction[selectIndex]);
             } else {
-                if (outTransaction.length < 6) {
-                    if (selectIndex >= outTransaction.length - 1) {
-                        editing = 1;
-                        for (let i = 0; i < 5; i++) {
-                            if (i === selectIndex - inputTransaction.length) {
-                                editingForm(outTransaction[i]);
-                                objectOld(outTransaction[i]);
-                                break;
-                            }
-                        }
-                    } else {
-                        editing = 1;
-                        for (let i = 0; i < 5; i++) {
-                            if (i === selectIndex - inputTransaction.length) {
-                                editingForm(outTransaction[i]);
-                                objectOld(outTransaction[i]);
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    editing = 1;
-                    for (let i = 0; i < 5; i++) {
-                        if (i === selectIndex - inputTransaction.length) {
-                            editingForm(outTransaction[i]);
-                            objectOld(outTransaction[i]);
-                            break;
-                        }
-                    }
-                }
+                editingForm(outTransaction[selectIndex - 1]); // -1 porque o index sempre está 1 valor acima da lista de saida, porque a lista de saída inicia em [0]. e não da erro quando só tem valor na lista de saída, porque não cai na condição da IF anterios, que checa a lista de entrada.
+                objectOld(outTransaction[selectIndex - 1]);
             }
-        } else { // lista maior que 5 itens [0-1-2-3-4]
-            if (selectIndex < 5) {
-                editing = 1;
-                for (let i = 0; i < 5; i++) {
-                    if (i === selectIndex) {
-                        editingForm(inputTransaction[i]);
-                        objectOld(inputTransaction[i]);
-                        break;
-                    }
-                }
-            } else {
-                editing = 1;
-                for (let i = 0; i < 5; i++) {
-                    if (i === selectIndex - 5) {
-                        editingForm(outTransaction[i]);
-                        objectOld(outTransaction[i]);
-                        break;
-                    }
-                }
-            }
+            return;
+        } else {
+            editingForm(outTransaction[selectIndex]);
+            objectOld(outTransaction[selectIndex]);
+            return;
         }
+    } else {
+        editing = 1;
+        editingForm(outTransaction[selectIndex]);
+        objectOld(outTransaction[selectIndex]);
+        return;
     }
 }
 
 function deleteTransactions() {
-    const listTransactions = data.transactions;
-    const inputTransaction = data.transactions.filter((item) => item.type === "1");
-    const outTransaction = data.transactions.filter((item) => item.type === "2");
+    let inputTransaction = data.transactions.filter((item) => item.type === "1");
+    let outTransaction = data.transactions.filter((item) => item.type === "2");
 
-    if (selectIndex < listTransactions.length) {
-        if (inputTransaction.length < 6) {
-            if (selectIndex <= inputTransaction.length - 1) {
-                for (let i = 0; i < 5; i++) {
-                    if (i === selectIndex) {
-                        objectOld(inputTransaction[i]);
-                        itemDelete.splice([updateTransactions()], 1);
-                        break;
-                    }
-                }
+    if (selectIndex < 5) {
+        editing = 1;
+        if (inputTransaction.length > 0) {
+            if (inputTransaction.length >= (selectIndex + 1)) {
+                objectOld(inputTransaction[selectIndex]);
+                itemDelete.splice([updateTransactions()], 1);
             } else {
-                if (outTransaction.length < 6) {
-                    if (selectIndex >= outTransaction.length - 1) {
-                        for (let i = 0; i < 5; i++) {
-                            if (i === selectIndex - inputTransaction.length) {
-                                objectOld(outTransaction[i]);
-                                itemDelete.splice([updateTransactions()], 1);
-                                break;
-                            }
-                        }
-                    } else {
-                        for (let i = 0; i < 5; i++) {
-                            if (i === selectIndex - inputTransaction.length) {
-                                objectOld(outTransaction[i]);
-                                itemDelete.splice([updateTransactions()], 1);
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    for (let i = 0; i < 5; i++) {
-                        if (i === selectIndex - inputTransaction.length) {
-                            objectOld(outTransaction[i]);
-                            itemDelete.splice([updateTransactions()], 1);
-                            break;
-                        }
-                    }
-                }
+                objectOld(outTransaction[selectIndex]);
+                itemDelete.splice([updateTransactions() - 1], 1);// -1 porque o index sempre está 1 valor acima da lista de saida, porque a lista de saída inicia em [0]. e não da erro quando só tem valor na lista de saída, porque não cai na condição da IF anterios, que checa a lista de entrada.
             }
-        } else { // lista maior que 5 itens [0-1-2-3-4]
-            if (selectIndex < 5) {
-                for (let i = 0; i < 5; i++) {
-                    if (i === selectIndex) {
-                        objectOld(inputTransaction[i]);
-                        itemDelete.splice([updateTransactions()], 1);
-                        break;
-                    }
-                }
-            } else {
-                for (let i = 0; i < 5; i++) {
-                    if (i === selectIndex - 5) {
-                        objectOld(outTransaction[i]);
-                        itemDelete.splice([updateTransactions()], 1);
-                        break;
-                    }
-                }
-            }
+            return;
+        } else {
+            objectOld(outTransaction[selectIndex]);
+            itemDelete.splice([updateTransactions()], 1);
+            return;
         }
+    } else {
+        editing = 1;
+        objectOld(outTransaction[selectIndex]);
+        itemDelete.splice([updateTransactions()], 1);
+        return;
     }
 }
 
@@ -303,9 +220,16 @@ function getTotal() {
 }
 
 //código
+let editing = 0;
 checkLogged();
 let itemDelete = data.transactions;
 
+document.getElementById("form").addEventListener("click", function (e) {
+    document.getElementById("value-input").value = '';
+    document.getElementById("description-input").value = '';
+    document.getElementById("date-input").value = '';
+    document.querySelector(`input[name="type-input"][value="1"]`).checked = true;
+});
 document.getElementById("edit-modal").addEventListener("click", () => {
     editTransactions();
 });
